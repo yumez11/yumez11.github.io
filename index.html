@@ -1,875 +1,98 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-	<meta name="theme-color" content="#33474d">
-	<title>yuez</title>
-	<link rel="stylesheet" href="/css/style.css" />
-	
-      <link rel="alternate" href="/atom.xml" title="yuez" type="application/atom+xml">
-    
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+  -->
+  <base href="/">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A new Flutter project.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="answer">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <title>answer</title>
+  <link rel="manifest" href="manifest.json">
 </head>
-
 <body>
+  <!-- This script installs service_worker.js to provide PWA functionality to
+       application. For more information, see:
+       https://developers.google.com/web/fundamentals/primers/service-workers -->
+  <script>
+    var serviceWorkerVersion = '2322013797';
+    var scriptLoaded = false;
+    function loadMainDartJs() {
+      if (scriptLoaded) {
+        return;
+      }
+      scriptLoaded = true;
+      var scriptTag = document.createElement('script');
+      scriptTag.src = 'main.dart.js';
+      scriptTag.type = 'application/javascript';
+      document.body.append(scriptTag);
+    }
 
-	<header class="header">
-		<nav class="header__nav">
-			
-				<a href="/archives" class="header__link">Archive</a>
-			
-				<a href="/tags" class="header__link">Tags</a>
-			
-				<a href="/atom.xml" class="header__link">RSS</a>
-			
-		</nav>
-		<h1 class="header__title"><a href="/">yuez</a></h1>
-		<h2 class="header__subtitle">我们的征途是星辰大海</h2>
-	</header>
+    if ('serviceWorker' in navigator) {
+      // Service workers are supported. Use them.
+      window.addEventListener('load', function () {
+        // Wait for registration to finish before dropping the <script> tag.
+        // Otherwise, the browser will load the script multiple times,
+        // potentially different versions.
+        var serviceWorkerUrl = 'flutter_service_worker.js?v=' + serviceWorkerVersion;
+        navigator.serviceWorker.register(serviceWorkerUrl)
+          .then((reg) => {
+            function waitForActivation(serviceWorker) {
+              serviceWorker.addEventListener('statechange', () => {
+                if (serviceWorker.state == 'activated') {
+                  console.log('Installed new service worker.');
+                  loadMainDartJs();
+                }
+              });
+            }
+            if (!reg.active && (reg.installing || reg.waiting)) {
+              // No active web worker and we have installed or are installing
+              // one for the first time. Simply wait for it to activate.
+              waitForActivation(reg.installing ?? reg.waiting);
+            } else if (!reg.active.scriptURL.endsWith(serviceWorkerVersion)) {
+              // When the app updates the serviceWorkerVersion changes, so we
+              // need to ask the service worker to update.
+              console.log('New service worker available.');
+              reg.update();
+              waitForActivation(reg.installing);
+            } else {
+              // Existing service worker is still good.
+              console.log('Loading app from service worker.');
+              loadMainDartJs();
+            }
+          });
 
-	<main>
-		
-
-
-
-	<article>
-	
-		<h1><a href="/2016/12/26/Animation/">iOS Animation</a></h1>
-	
-	<div class="article__infos">
-		<span class="article__date">2016-12-26</span><br />
-		
-		
-	</div>
-
-	
-
-	
-		<h1 id="1-UIKit层面的动画"><a href="#1-UIKit层面的动画" class="headerlink" title="1.UIKit层面的动画"></a>1.UIKit层面的动画</h1><ul>
-<li>帧动画,<code>UIImage</code>实现的动画<h4 id="1-image动画-用一组image加载为闪图"><a href="#1-image动画-用一组image加载为闪图" class="headerlink" title="1.image动画,用一组image加载为闪图"></a>1.image动画,用一组image加载为闪图</h4><pre><code>let image = UIImage.animatedImage(with: images, duration: 3)
-</code></pre><h4 id="2-ImageView动画"><a href="#2-ImageView动画" class="headerlink" title="2.ImageView动画"></a>2.ImageView动画</h4><pre><code>imageView1.animationImages = images     添加图片到view
-imageView1.animationDuration = 4             循环时间
-imageView1.animationRepeatCount = -1    循环次数 -1重复, 1运行完删除
-imageView1.startAnimating()
-</code></pre></li>
-</ul>
-<p><figure class="figure"><img src="http://upload-images.jianshu.io/upload_images/2903014-331ab314ddeadece.gif?imageMogr2/auto-orient/strip" alt="imageViewAnimation.gif"><figcaption class="figure__caption">imageViewAnimation.gif</figcaption></figure></p>
-<h4 id="3-Timer定时器"><a href="#3-Timer定时器" class="headerlink" title="3.Timer定时器"></a>3.Timer定时器</h4><p>通过添加定时器连续调用一个方法来修改视图的 <code>center transform  frame alpha bounds</code> 来达到动画的效果</p>
-<p><figure class="figure"><img src="http://upload-images.jianshu.io/upload_images/2903014-7138aba698014b93.gif?imageMogr2/auto-orient/strip" alt="imageDura.gif"><figcaption class="figure__caption">imageDura.gif</figcaption></figure></p>
-<p>匀速动画的实现可以一个公式计算实现</p>
-<blockquote>
-<p>当前值= 开始值+当前帧数 <em>* (结束值-开始值)/帧率</em> *动画时长</p>
-</blockquote>
-<h4 id="4-UIView层面的动画"><a href="#4-UIView层面的动画" class="headerlink" title="4.UIView层面的动画"></a>4.UIView层面的动画</h4><p>UIView动画是系统为UIView 提供的专门用于控制视图实现的动画的方法</p>
-<ol>
-<li>只需要在动画前设置好视图要修改的视图的起始状态</li>
-<li>选择合适的方法后</li>
-<li><p>在方法内说明动画结束时视图的状态</p>
-<blockquote>
-<p>不需要关注中间的变化过程,只需要说明视图动画结束是什么样子,系统就会为这个过程自动添加动画</p>
-</blockquote>
-<p>  let rect = self.imageView1.frame</p>
-<pre><code>self.imageView1.frame = CGRect(x: -100, y: -100, width: 10, height: 20)
-UIView.animate(withDuration: 5, delay: 1, options: UIViewAnimationOptions.curveEaseInOut,animations: {
-        self.imageView1.frame = rect  //动画结束状态
-},completion: { _ in   //动画完成后
-    self.imageView1.alpha = 0.3
-    UIView.animate(withDuration: 3, animations: { //嵌套
-        self.imageView1.alpha = 1
-    })
-})
-</code></pre><p><figure class="figure"><img src="http://upload-images.jianshu.io/upload_images/2903014-f6bc631695a6c9b8.gif?imageMogr2/auto-orient/strip" alt="UIViewAnimation.gif"><figcaption class="figure__caption">UIViewAnimation.gif</figcaption></figure></p>
-</li>
-</ol>
-<h5 id="UIViewAnimationOptions"><a href="#UIViewAnimationOptions" class="headerlink" title="UIViewAnimationOptions"></a>UIViewAnimationOptions</h5><pre><code>UIViewAnimationOptionLayoutSubviews           //提交动画的时候布局子控件，表示子控件将和父控件一同动画。
-UIViewAnimationOptionAllowUserInteraction     //动画时允许用户交流，比如触摸
-UIViewAnimationOptionBeginFromCurrentState    //从当前状态开始动画
-UIViewAnimationOptionRepeat                   //无限重复动画
-UIViewAnimationOptionAutoreverse              //执行反向动画,前提是设置动画无限重复
-UIViewAnimationOptionOverrideInheritedDuration//忽略外层动画嵌套的执行时间
-UIViewAnimationOptionOverrideInheritedCurve   //忽略外层动画嵌套的时间变化曲线
-UIViewAnimationOptionAllowAnimatedContent     //通过改变属性和重绘实现动画效果，如果key没有提交动画将使用快照
-UIViewAnimationOptionShowHideTransitionViews  //用显隐的方式替代添加移除图层的动画效果
-UIViewAnimationOptionOverrideInheritedOptions //忽略嵌套继承的选项
-时间函数曲线相关
-UIViewAnimationOptionCurveEaseInOut           //默认,先慢再快再慢
-UIViewAnimationOptionCurveEaseIn              //越来越快
-UIViewAnimationOptionCurveEaseOut             //越爱越慢
-UIViewAnimationOptionCurveLinear              //匀速
-转场动画相关
-UIViewAnimationOptionTransitionNone           //无转场动画
-UIViewAnimationOptionTransitionFlipFromLeft   //转场从左翻转
-UIViewAnimationOptionTransitionFlipFromRight  //转场从右翻转
-UIViewAnimationOptionTransitionCurlUp         //上卷转场
-UIViewAnimationOptionTransitionCurlDown       //下卷转场
-UIViewAnimationOptionTransitionCrossDissolve  //转场交叉消失
-UIViewAnimationOptionTransitionFlipFromTop    //转场从上翻转
-UIViewAnimationOptionTransitionFlipFromBottom //转场从下翻转
-</code></pre><blockquote>
-<p>最后一组转场动画一般是使用在下面这个方法中</p>
-</blockquote>
-<pre><code>UIView.transition(from: self.view, to: self.imageView2, duration: 3, options: UIViewAnimationOptions.transitionFlipFromBottom, completion: nil)
-</code></pre><p>效果:<br><figure class="figure"><img src="http://upload-images.jianshu.io/upload_images/2903014-f0601030837cf749.gif?imageMogr2/auto-orient/strip" alt="UIImageTanslation.gif"><figcaption class="figure__caption">UIImageTanslation.gif</figcaption></figure></p>
-
-	
-
-	
-
-</article>
-
-
-
-
-	<article>
-	
-		<h1><a href="/2016/12/06/hello-world/">Markdown</a></h1>
-	
-	<div class="article__infos">
-		<span class="article__date">2016-12-06</span><br />
-		
-		
-	</div>
-
-	
-
-	
-		<h1 id="1-1"><a href="#1-1" class="headerlink" title="1         # 1"></a>1         # 1</h1><h2 id="2-2"><a href="#2-2" class="headerlink" title="2        ## 2"></a>2        ## 2</h2><h3 id="3-3"><a href="#3-3" class="headerlink" title="3       ### 3"></a>3       ### 3</h3><h4 id="4-4"><a href="#4-4" class="headerlink" title="4      #### 4"></a>4      #### 4</h4><h5 id="5-5"><a href="#5-5" class="headerlink" title="5     ##### 5"></a>5     ##### 5</h5><h6 id="6-6"><a href="#6-6" class="headerlink" title="6    ###### 6"></a>6    ###### 6</h6><ul>
-<li>1       *1</li>
-<li>2       *2</li>
-<li>3       *3</li>
-</ul>
-<ol>
-<li>1.</li>
-<li>2.</li>
-<li>3.</li>
-</ol>
-<p><strong>粗体写法</strong>  两个*包含</p>
-<p><em>斜体写法</em>    一个*包含</p>
-<table>
-<thead>
-<tr>
-<th>表格</th>
-<th style="text-align:center">Are</th>
-<th style="text-align:right">Cool</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>col 3 is</td>
-<td style="text-align:center">right-aligned</td>
-<td style="text-align:right">$1600</td>
-</tr>
-<tr>
-<td>col 2 is</td>
-<td style="text-align:center">centered</td>
-<td style="text-align:right">$12</td>
-</tr>
-<tr>
-<td>zebra stripes</td>
-<td style="text-align:center">are neat</td>
-<td style="text-align:right">$1</td>
-</tr>
-</tbody>
-</table>
-<p><code>| 表格           | Are           | Cool  |
-| ------------- |:-------------:| -----:|
-| col 3 is      | right-aligned | $1600 |
-| col 2 is      | centered      |   $12 |
-| zebra stripes | are neat      |    $1 |</code></p>
-<p><code>var str = &quot;Hello Word&quot;
-print(str) //Hello Word</code></p>
-<p><figure class="figure"><img src="http://25.io/mou/img/1.png" alt="Markdown Mou"><figcaption class="figure__caption">Markdown Mou</figcaption></figure><br><a href="http://sspai.com/25137" target="_blank" rel="external">Markdown入门与简介</a></p>
-<blockquote>
-<p>我有一头小毛驴,可是我从来也不骑   &gt;</p>
-</blockquote>
-
-	
-
-	
-
-</article>
-
-
-
-
-	<article>
-	
-		<h1><a href="/2016/10/09/iOScertificates/">iOS证书相关</a></h1>
-	
-	<div class="article__infos">
-		<span class="article__date">2016-10-09</span><br />
-		
-		
-	</div>
-
-	
-
-	
-		<h5 id="几种文件必须分清楚…"><a href="#几种文件必须分清楚…" class="headerlink" title="几种文件必须分清楚…"></a>几种文件必须分清楚…</h5><ul>
-<li><strong>.certSigningRequest:</strong>    证书请求文件,在keychain（钥匙串访问）里生成</li>
-<li><strong>.cer：</strong>  证书，苹果签发给你的 证书 ，有了这个证书，你的（请求证书的电脑的）私钥 配合 证书 以及 对应app identifier 和  生成对应 app 的 mobileprovision配置文件，也才能真机调试 或者 发布。（事实上现在可以不用开发者账号也可以真机调试）</li>
-<li><strong>.mobileprovision:</strong>   对应app 的配置文件。Xcode 其实最终也是需要 这个文件 来进行 对应的app 打包。</li>
-<li><strong>.p12：</strong>   个人信息交换文件，我们用这个文件把 私钥 存储起来，传输到另一个电脑。非常重要</li>
-</ul>
-<p>－－－－－－－－－－－－－－－<br>设定：</p>
-<p>我的A电脑 是公司电脑，并且是请求证书，即生成CertificateSigningRequest.certSigningRequest文件 的电脑。现在我我需要我自己的个人电脑B，还有我的同事的电脑C 和 项目经理的电脑D 都能 使用 这个苹果账号开发。<br>－－－－－－－－－－－－－－</p>
-<p>事实上。我们开发只需要</p>
-<ul>
-<li><strong>1.</strong>    Xcode 登陆开发者帐户</li>
-<li><strong>2.</strong>    私钥。（电脑A生成，certSigningRequest包含私钥文件但是其它电脑BCD无法通过这个文件获取私钥，只能将证书下的私钥导出到p12文件里，再在BCD电脑上安装p12以获取私钥）注意是 证书下的私钥  不是整个证书哈. 很多人就是挂在这步了，导致 Xocde fix issue 时还是需要 reset 证书</li>
-<li><strong>3.</strong>    对应私钥的 证书cer.（开发者中心里需要certSigningRequest 文件 生成的）</li>
-</ul>
-<p>注意：<br>在最初生成certSigningRequest（电脑A）时就已经自动生成私钥并导入你电脑，但是其它共用此证书（.cer文件）的电脑（电脑BCD）没有此对应的私钥啊，那就必须要 导入（电脑A）生成此证书的certSigningRequest的私钥 为啥？因为BCD电脑和A是 不同身份的电脑，也就会生成不同的CertificateSigningRequest 文件，那么BCD电脑产生的对应的私钥肯定不一样啊，那么BCD电脑电脑A对应的证书肯定不匹配.</p>
-<ul>
-<li><strong>4.1</strong>   开发调试的mobileprovision可以完全Xcode自行从开发者中心 生成并获取，根本不用手动自行从开发者中心下载。</li>
-<li><strong>4.2</strong>   发布的mobileprovision 则只需要在开发者中心自行设置好，并使用Xcode自动匹配从开发者中心下载，根本不用手动自行从开发者中心下载。</li>
-</ul>
-
-	
-
-	
-
-</article>
-
-
-
-
-	<article>
-	
-		<h1><a href="/2016/09/08/MyFirstDocs/">vim常用命令</a></h1>
-	
-	<div class="article__infos">
-		<span class="article__date">2016-09-08</span><br />
-		
-		
-	</div>
-
-	
-
-	
-		<h5 id="退出编辑器"><a href="#退出编辑器" class="headerlink" title="退出编辑器"></a>退出编辑器</h5><table>
-<thead>
-<tr>
-<th style="text-align:left"></th>
-<th style="text-align:left"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">:w</td>
-<td style="text-align:left">将缓冲区写入文件，即保存修改</td>
-</tr>
-<tr>
-<td style="text-align:left">:wq</td>
-<td style="text-align:left">保存修改并退出</td>
-</tr>
-<tr>
-<td style="text-align:left">:x</td>
-<td style="text-align:left">保存修改并退出</td>
-</tr>
-<tr>
-<td style="text-align:left">:q</td>
-<td style="text-align:left">退出，如果对缓冲区进行过修改，则会提示</td>
-</tr>
-<tr>
-<td style="text-align:left">:q!</td>
-<td style="text-align:left">强制退出，放弃修改</td>
-</tr>
-<tr>
-<td style="text-align:left">:qx</td>
-<td style="text-align:left">开始记录宏，并将结果存入寄存器x</td>
-</tr>
-<tr>
-<td style="text-align:left">q</td>
-<td style="text-align:left">退出记录模式</td>
-</tr>
-<tr>
-<td style="text-align:left">@x</td>
-<td style="text-align:left">播放记录在x寄存器中的宏命令</td>
-</tr>
-</tbody>
-</table>
-<p>稍微解释一下，当在normal模式下输入:qx后，你对文本的所有编辑动作将会被记录下来，再次输入q即退出了记录模式，然后输入@x对刚才记录下来的命令进行重复，此命令后可跟数字，表示要重复多少次，比如@x20，可以重复20次。这个在文本的批处理中是非常有用的。</p>
-<h5 id="复制粘贴"><a href="#复制粘贴" class="headerlink" title="复制粘贴"></a>复制粘贴</h5><table>
-<thead>
-<tr>
-<th style="text-align:left"></th>
-<th style="text-align:left"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">dd</td>
-<td style="text-align:left">删除光标所在行</td>
-</tr>
-<tr>
-<td style="text-align:left">dw</td>
-<td style="text-align:left">删除一个字(word)</td>
-</tr>
-<tr>
-<td style="text-align:left">x</td>
-<td style="text-align:left">删除当前字符</td>
-</tr>
-<tr>
-<td style="text-align:left">X</td>
-<td style="text-align:left">删除前一个字符</td>
-</tr>
-<tr>
-<td style="text-align:left">D</td>
-<td style="text-align:left">删除到行末</td>
-</tr>
-<tr>
-<td style="text-align:left">yy</td>
-<td style="text-align:left">复制一行，此命令前可跟数字，标识复制多行，如6yy，表示从当前行开始复制6行</td>
-</tr>
-<tr>
-<td style="text-align:left">yw</td>
-<td style="text-align:left">复制一个字</td>
-</tr>
-<tr>
-<td style="text-align:left">y$</td>
-<td style="text-align:left">复制到行末</td>
-</tr>
-<tr>
-<td style="text-align:left">p</td>
-<td style="text-align:left">粘贴粘贴板的内容到当前行的下面</td>
-</tr>
-<tr>
-<td style="text-align:left">P</td>
-<td style="text-align:left">粘贴粘贴板的内容到当前行的上面</td>
-</tr>
-<tr>
-<td style="text-align:left">]p</td>
-<td style="text-align:left">有缩进的粘贴，vim会自动调节代码的缩进</td>
-</tr>
-<tr>
-<td style="text-align:left">“a</td>
-<td style="text-align:left">将内容放入/存入a寄存器，可以支持多粘贴板</td>
-</tr>
-</tbody>
-</table>
-<p>比如常用的一个寄存器就是系统寄存器，名称为+，所以从系统粘贴板粘贴到vim中的命令为”+p,注意此处的+不表示操作符，二十一个寄存器。</p>
-<h5 id="标签命令-同时编辑多个文件"><a href="#标签命令-同时编辑多个文件" class="headerlink" title="标签命令 同时编辑多个文件"></a>标签命令 同时编辑多个文件</h5><table>
-<thead>
-<tr>
-<th style="text-align:left"></th>
-<th style="text-align:left"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">:tabe fn</td>
-<td style="text-align:left">在一个新的标签页中编辑文件fn</td>
-</tr>
-<tr>
-<td style="text-align:left">gt</td>
-<td style="text-align:left">切换到下一个标签页</td>
-</tr>
-<tr>
-<td style="text-align:left">gT</td>
-<td style="text-align:left">切换到上一个标签页</td>
-</tr>
-<tr>
-<td style="text-align:left">:tabr</td>
-<td style="text-align:left">切换到第一个标签页</td>
-</tr>
-<tr>
-<td style="text-align:left">:tabl</td>
-<td style="text-align:left">切换到最后一个标签页</td>
-</tr>
-<tr>
-<td style="text-align:left">:tabm [N]</td>
-<td style="text-align:left">把当前tab移动到第N个tab之后</td>
-</tr>
-</tbody>
-</table>
-<p>和eclipse, ue等的标签页是一个意思 在vim众多的插件中，有一个叫minibuffer的插件，就是下面所说的标签页功能了，可以支持同时编辑多个文件。</p>
-<h5 id="窗口命令"><a href="#窗口命令" class="headerlink" title="窗口命令"></a>窗口命令</h5><table>
-<thead>
-<tr>
-<th style="text-align:left"></th>
-<th style="text-align:left"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">ctrl+w s</td>
-<td style="text-align:left">水平分割窗口</td>
-</tr>
-<tr>
-<td style="text-align:left">ctrl+w w</td>
-<td style="text-align:left">切换窗口</td>
-</tr>
-<tr>
-<td style="text-align:left">ctrl+w q</td>
-<td style="text-align:left">退出当前窗口(由于同时有多个文件，此命令不会影响其他窗口)</td>
-</tr>
-<tr>
-<td style="text-align:left">ctrl+w v</td>
-<td style="text-align:left">垂直分割窗口</td>
-</tr>
-</tbody>
-</table>
-<h5 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h5><table>
-<thead>
-<tr>
-<th style="text-align:left"></th>
-<th style="text-align:left"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">:e file</td>
-<td style="text-align:left">把file加载到新的缓冲区中</td>
-</tr>
-<tr>
-<td style="text-align:left">:bn</td>
-<td style="text-align:left">跳转到下一个缓冲区</td>
-</tr>
-<tr>
-<td style="text-align:left">:bd</td>
-<td style="text-align:left">删除缓冲区(关闭文件)</td>
-</tr>
-<tr>
-<td style="text-align:left">:sp fn</td>
-<td style="text-align:left">分割窗口，并将fn加载到新的窗口中</td>
-</tr>
-</tbody>
-</table>
-<p>vim在保存之前不会对文件做实际的修改，只是加载到缓冲区中，对文件的编辑其实是对缓冲区的编辑，直到:w时才会存入物理文件。</p>
-<h5 id="查找替换"><a href="#查找替换" class="headerlink" title="查找替换"></a>查找替换</h5><table>
-<thead>
-<tr>
-<th style="text-align:left"></th>
-<th style="text-align:left"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">/pattern</td>
-<td style="text-align:left">向后搜索字符串pattern</td>
-</tr>
-<tr>
-<td style="text-align:left">?pattern</td>
-<td style="text-align:left">向前搜索字符串pattern</td>
-</tr>
-<tr>
-<td style="text-align:left">n</td>
-<td style="text-align:left">下一个匹配(如果是/搜索，则是向下的下一个，?搜索则是向上的下一个)</td>
-</tr>
-<tr>
-<td style="text-align:left">N</td>
-<td style="text-align:left">上一个匹配(同上)</td>
-</tr>
-<tr>
-<td style="text-align:left">:%s/old/new/g</td>
-<td style="text-align:left">搜索整个文件，将所有的old替换为new</td>
-</tr>
-<tr>
-<td style="text-align:left">:%s/old/new/gc</td>
-<td style="text-align:left">搜索整个文件，将所有的old替换为new，每次都要你确认是否替换</td>
-</tr>
-</tbody>
-</table>
-<h5 id="移动光标"><a href="#移动光标" class="headerlink" title="移动光标"></a>移动光标</h5><p>在vim中移动光标跟其他的编辑器中有很大的区别，不过一旦学会了，就会飞速的在文本中移动了。</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:left"></th>
-<th style="text-align:left"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">h,j,k,l</td>
-<td style="text-align:left">左，下，上，右</td>
-</tr>
-<tr>
-<td style="text-align:left">ctrl-f</td>
-<td style="text-align:left">上翻一页</td>
-</tr>
-<tr>
-<td style="text-align:left">ctrl-b</td>
-<td style="text-align:left">下翻一页</td>
-</tr>
-<tr>
-<td style="text-align:left">%</td>
-<td style="text-align:left">跳到与当前括号匹配的括号处，如当前在{，则跳转到与之匹配的}处</td>
-</tr>
-<tr>
-<td style="text-align:left">w</td>
-<td style="text-align:left">跳到下一个字首，按标点或单词分割</td>
-</tr>
-<tr>
-<td style="text-align:left">W</td>
-<td style="text-align:left">跳到下一个字首，长跳，如end-of-line被认为是一个字</td>
-</tr>
-<tr>
-<td style="text-align:left">e</td>
-<td style="text-align:left">跳到下一个字尾</td>
-</tr>
-<tr>
-<td style="text-align:left">E</td>
-<td style="text-align:left">跳到下一个字尾，长跳</td>
-</tr>
-<tr>
-<td style="text-align:left">b</td>
-<td style="text-align:left">跳到上一个字</td>
-</tr>
-<tr>
-<td style="text-align:left">B</td>
-<td style="text-align:left">跳到上一个字，长跳</td>
-</tr>
-<tr>
-<td style="text-align:left">0</td>
-<td style="text-align:left">跳至行首，不管有无缩进，就是跳到第0个字符</td>
-</tr>
-<tr>
-<td style="text-align:left">^</td>
-<td style="text-align:left">跳至行首的第一个字符</td>
-</tr>
-<tr>
-<td style="text-align:left">$</td>
-<td style="text-align:left">跳至行尾</td>
-</tr>
-<tr>
-<td style="text-align:left">gg</td>
-<td style="text-align:left">跳至文件的第一行</td>
-</tr>
-<tr>
-<td style="text-align:left">gd</td>
-<td style="text-align:left">跳至当前光标所在的变量的声明处</td>
-</tr>
-<tr>
-<td style="text-align:left">[N]G</td>
-<td style="text-align:left">跳到第N行，如0G，就等价于gg，100G就是第100行</td>
-</tr>
-<tr>
-<td style="text-align:left">fx</td>
-<td style="text-align:left">在当前行中找x字符，找到了就跳转至</td>
-</tr>
-<tr>
-<td style="text-align:left">;</td>
-<td style="text-align:left">重复上一个f命令，而不用重复的输入fx</td>
-</tr>
-<tr>
-<td style="text-align:left">tx</td>
-<td style="text-align:left">与fx类似，但是只是跳转到x的前一个字符处</td>
-</tr>
-<tr>
-<td style="text-align:left">Fx</td>
-<td style="text-align:left">跟fx的方向相反</td>
-</tr>
-<tr>
-<td style="text-align:left">),(</td>
-<td style="text-align:left">跳转到上/下一个语句</td>
-</tr>
-<tr>
-<td style="text-align:left">*</td>
-<td style="text-align:left">查找光标所在处的单词，向下查找</td>
-</tr>
-<tr>
-<td style="text-align:left">#</td>
-<td style="text-align:left">查找光标所在处的单词，向上查找</td>
-</tr>
-<tr>
-<td style="text-align:left">`.</td>
-<td style="text-align:left">跳转至上次编辑位置</td>
-</tr>
-</tbody>
-</table>
-<h5 id="在屏幕上移动"><a href="#在屏幕上移动" class="headerlink" title="在屏幕上移动"></a>在屏幕上移动</h5><table>
-<thead>
-<tr>
-<th style="text-align:left"></th>
-<th style="text-align:left"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">H</td>
-<td style="text-align:left">移动光标到当前屏幕上最上边的一行</td>
-</tr>
-<tr>
-<td style="text-align:left">M</td>
-<td style="text-align:left">移动光标到当前屏幕上中间的一行</td>
-</tr>
-<tr>
-<td style="text-align:left">L</td>
-<td style="text-align:left">移动光标到当前屏幕上最下边的一行</td>
-</tr>
-</tbody>
-</table>
-<h5 id="书签"><a href="#书签" class="headerlink" title="书签"></a>书签</h5><table>
-<thead>
-<tr>
-<th style="text-align:left"></th>
-<th style="text-align:left"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">ma</td>
-<td style="text-align:left">把当前位置存成标签a</td>
-</tr>
-<tr>
-<td style="text-align:left">`a</td>
-<td style="text-align:left">跳转到标签a处</td>
-</tr>
-</tbody>
-</table>
-<h5 id="编辑"><a href="#编辑" class="headerlink" title="编辑"></a>编辑</h5><table>
-<thead>
-<tr>
-<th style="text-align:left"></th>
-<th style="text-align:left"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">r</td>
-<td style="text-align:left">替换一个字符</td>
-</tr>
-<tr>
-<td style="text-align:left">J</td>
-<td style="text-align:left">将下一行和当前行连接为一行</td>
-</tr>
-<tr>
-<td style="text-align:left">cc</td>
-<td style="text-align:left">删除当前行并进入编辑模式</td>
-</tr>
-<tr>
-<td style="text-align:left">cw</td>
-<td style="text-align:left">删除当前字，并进入编辑模式</td>
-</tr>
-<tr>
-<td style="text-align:left">c$</td>
-<td style="text-align:left">擦除从当前位置至行末的内容，并进入编辑模式</td>
-</tr>
-<tr>
-<td style="text-align:left">s</td>
-<td style="text-align:left">删除当前字符并进入编辑模式</td>
-</tr>
-<tr>
-<td style="text-align:left">xp</td>
-<td style="text-align:left">交换当前字符和下一个字符</td>
-</tr>
-<tr>
-<td style="text-align:left">u</td>
-<td style="text-align:left">撤销</td>
-</tr>
-<tr>
-<td style="text-align:left">ctrl+r</td>
-<td style="text-align:left">重做</td>
-</tr>
-<tr>
-<td style="text-align:left">.</td>
-<td style="text-align:left">重复上一个编辑命令</td>
-</tr>
-<tr>
-<td style="text-align:left">~</td>
-<td style="text-align:left">切换大小写，当前字符</td>
-</tr>
-<tr>
-<td style="text-align:left">g~iw</td>
-<td style="text-align:left">切换当前字的大小写</td>
-</tr>
-<tr>
-<td style="text-align:left">gUiw</td>
-<td style="text-align:left">将当前字变成大写</td>
-</tr>
-<tr>
-<td style="text-align:left">guiw</td>
-<td style="text-align:left">将当前字变成小写</td>
-</tr>
-<tr>
-<td style="text-align:left">>&gt;</td>
-<td style="text-align:left">将当前行右移一个单位</td>
-</tr>
-<tr>
-<td style="text-align:left">&lt;&lt;</td>
-<td style="text-align:left">将当前行左移一个单位(一个tab符)</td>
-</tr>
-<tr>
-<td style="text-align:left">==</td>
-<td style="text-align:left">自动缩进当前行</td>
-</tr>
-</tbody>
-</table>
-<h5 id="插入模式"><a href="#插入模式" class="headerlink" title="插入模式"></a>插入模式</h5><table>
-<thead>
-<tr>
-<th style="text-align:left"></th>
-<th style="text-align:left"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">i</td>
-<td style="text-align:left">从当前光标处进入插入模式</td>
-</tr>
-<tr>
-<td style="text-align:left">I</td>
-<td style="text-align:left">进入插入模式，并置光标于行首</td>
-</tr>
-<tr>
-<td style="text-align:left">a</td>
-<td style="text-align:left">追加模式，置光标于当前光标之后</td>
-</tr>
-<tr>
-<td style="text-align:left">A</td>
-<td style="text-align:left">追加模式，置光标于行末</td>
-</tr>
-<tr>
-<td style="text-align:left">o</td>
-<td style="text-align:left">在当前行之下新加一行，并进入插入模式</td>
-</tr>
-<tr>
-<td style="text-align:left">O</td>
-<td style="text-align:left">在当前行之上新加一行，并进入插入模式</td>
-</tr>
-<tr>
-<td style="text-align:left">Esc</td>
-<td style="text-align:left">退出插入模式</td>
-</tr>
-</tbody>
-</table>
-<h5 id="可视模式-标记文本"><a href="#可视模式-标记文本" class="headerlink" title="可视模式 标记文本"></a>可视模式 标记文本</h5><table>
-<thead>
-<tr>
-<th style="text-align:left"></th>
-<th style="text-align:left"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">v</td>
-<td style="text-align:left">进入可视模式，单字符模式</td>
-</tr>
-<tr>
-<td style="text-align:left">V</td>
-<td style="text-align:left">进入可视模式，行模式</td>
-</tr>
-<tr>
-<td style="text-align:left">ctrl+v</td>
-<td style="text-align:left">进入可视模式，列模式，类似于UE的列模式</td>
-</tr>
-<tr>
-<td style="text-align:left">o</td>
-<td style="text-align:left">跳转光标到选中块的另一个端点</td>
-</tr>
-<tr>
-<td style="text-align:left">U</td>
-<td style="text-align:left">将选中块中的内容转成大写</td>
-</tr>
-<tr>
-<td style="text-align:left">O</td>
-<td style="text-align:left">跳转光标到块的另一个端点</td>
-</tr>
-<tr>
-<td style="text-align:left">aw</td>
-<td style="text-align:left">选中一个字</td>
-</tr>
-<tr>
-<td style="text-align:left">ab</td>
-<td style="text-align:left">选中括号中的所有内容，包括括号本身</td>
-</tr>
-<tr>
-<td style="text-align:left">aB</td>
-<td style="text-align:left">选中{}括号中的所有内容</td>
-</tr>
-<tr>
-<td style="text-align:left">ib</td>
-<td style="text-align:left">选中括号中的内容，不含括号</td>
-</tr>
-<tr>
-<td style="text-align:left">iB</td>
-<td style="text-align:left">选中{}中的内容，不含{}</td>
-</tr>
-</tbody>
-</table>
-<h5 id="对标记进行动作"><a href="#对标记进行动作" class="headerlink" title="对标记进行动作"></a>对标记进行动作</h5><table>
-<thead>
-<tr>
-<th style="text-align:left"></th>
-<th style="text-align:left"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">&gt;</td>
-<td style="text-align:left">块右移</td>
-</tr>
-<tr>
-<td style="text-align:left">&lt;</td>
-<td style="text-align:left">块左移</td>
-</tr>
-<tr>
-<td style="text-align:left">y</td>
-<td style="text-align:left">复制块</td>
-</tr>
-<tr>
-<td style="text-align:left">d</td>
-<td style="text-align:left">删除块</td>
-</tr>
-<tr>
-<td style="text-align:left">~</td>
-<td style="text-align:left">切换块中内容的大小写</td>
-</tr>
-</tbody>
-</table>
-
-	
-
-	
-
-</article>
-
-
-
-
-
-
-	<span class="different-posts">📕 end of posts 📕</span>
-
-
-	</main>
-
-	<footer class="footer">
-	<div class="footer-content">
-		
-	      <div class="footer__element">
-	<p>Hi there, <br />welcome to my Blog glad you found it. Have a look around, will you?</p>
-</div>
-
-	    
-	      <div class="footer__element">
-	<h5>Check out</h5>
-	<ul class="footer-links">
-		<li class="footer-links__link"><a href="/archives">Archive</a></li>
-		
-		  <li class="footer-links__link"><a href="/atom.xml">RSS</a></li>
-	    
-		<li class="footer-links__link"><a href="/about">about page</a></li>
-		<li class="footer-links__link"><a href="/tags">Tags</a></li>
-		<li class="footer-links__link"><a href="/categories">Categories</a></li>
-	</ul>
-</div>
-
-	    
-
-		<div class="footer-credit">
-			<span>© 2016 k.c.z | Powered by <a href="https://hexo.io/">Hexo</a> | Theme <a href="https://github.com/HoverBaum/meilidu-hexo">MeiliDu</a></span>
-		</div>
-
-	</div>
-
-
-</footer>
-
-
-
+        // If service worker doesn't succeed in a reasonable amount of time,
+        // fallback to plaint <script> tag.
+        setTimeout(() => {
+          if (!scriptLoaded) {
+            console.warn(
+              'Failed to load app from service worker. Falling back to plain <script> tag.',
+            );
+            loadMainDartJs();
+          }
+        }, 4000);
+      });
+    } else {
+      // Service workers not supported. Just drop the <script> tag.
+      loadMainDartJs();
+    }
+  </script>
 </body>
-
 </html>
